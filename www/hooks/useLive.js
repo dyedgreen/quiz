@@ -41,7 +41,7 @@ export default function useLive(gameId) {
     };
   }, []);
 
-  const choosePlayerName = name => {
+  const setPlayerName = name => {
     if (!connected)
       return;
     ws.send(JSON.stringify({ type: "add-player", playerId, name }));
@@ -55,6 +55,9 @@ export default function useLive(gameId) {
     player: {
       id: playerId,
       name,
+    },
+    actions: {
+      setPlayerName,
     },
   };
 }

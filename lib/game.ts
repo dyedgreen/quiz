@@ -28,15 +28,22 @@ export class Game {
     }
 
     for (const conn of this.conns) {
-      conn.send(JSON.stringify({
-        type: "player-list",
-        players: [...this.players.values()],
-      }));
+      this.syncPlayerList(conn);
     }
   }
 
+  syncPlayerList(conn: WebSocket) {
+    conn.send(JSON.stringify({
+      type: "player-list",
+      players: [...this.players.values()],
+    }));
+  }
+
   async connect(socket: WebSocket) {
-    console.log("Client connected!");
+    console.log(`${new Date()} New WebSocket client connected.`);
+    // sync initial state
+    this.syncPlayerList(socket);
+    // handle incoming events
     try {
       for await (const message of socket) {
         if (typeof message !== "string")
@@ -51,6 +58,7 @@ export class Game {
     } catch (err) {
       console.error(`[${new Date()}] Socket error: ${err}`);
     }
+    // handle disconnect
     this.conns.delete(socket);
   }
 
