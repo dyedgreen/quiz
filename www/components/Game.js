@@ -36,7 +36,7 @@ export default function Game({id}) {
     return html`
       <div style=${styles.container}>
         <${PlayerList} players=${game.players} />
-        <${Button} title="Ready!" style=${styles.singleButton} />
+        <${Button} title="Ready!" onClick=${game.actions.setPlayerReady} style=${styles.singleButton} disabled=${game.player.ready} />
       </div>
     `;
   }

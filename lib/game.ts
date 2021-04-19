@@ -9,6 +9,7 @@ interface Player {
   name: string;
   score: number;
   color: Color;
+  ready: boolean;
 }
 
 export interface Round {
@@ -26,10 +27,13 @@ export class Game {
   conns: Set<WebSocket>;
   players: Map<string, Player>;
 
+  activeRound: null | Round;
+
   constructor() {
     this.id = v4.generate();
     this.conns = new Set();
     this.players = new Map();
+    this.activeRound = null;
   }
 
   addPlayer(id: string, name: string) {
@@ -37,10 +41,30 @@ export class Game {
       this.players.get(id)!.name = name;
     } else {
       const color = colors[this.players.size % colors.length];
-      this.players.set(id, { id, name, score: 0, color });
+      this.players.set(id, { id, name, score: 0, color, ready: false });
       console.log(`[${new Date()}] Registered player ${id}`);
     }
+    for (const conn of this.conns) {
+      this.syncPlayerList(conn);
+    }
+  }
 
+  setPlayerReady(id: string) {
+    if (this.players.has(id)) {
+      let player = this.players.get(id)!;
+      this.players.set(id, {...player, ready: true});
+    } else {
+      console.warn(`[${new Date()}] Invalid player ID in setPlayerReady`);
+    }
+    for (const conn of this.conns) {
+      this.syncPlayerList(conn);
+    }
+  }
+
+  clearPlayersReady() {
+    for (const [key, val] of this.players) {
+      this.players.set(key, {...val, ready: false});
+    }
     for (const conn of this.conns) {
       this.syncPlayerList(conn);
     }
@@ -54,7 +78,7 @@ export class Game {
   }
 
   async connect(socket: WebSocket) {
-    console.log(`${new Date()} New WebSocket client connected.`);
+    console.log(`[${new Date()}] New WebSocket client connected.`);
     // sync initial state
     this.syncPlayerList(socket);
     // handle incoming events
@@ -67,6 +91,15 @@ export class Game {
         switch (payload.type) {
           case "add-player":
             this.addPlayer(payload.playerId, payload.name);
+            break;
+          case "set-player-ready":
+            if (this.activeRound != null) {
+              // This is only allowed IF we are not in a round. Otherwise, the round
+              // can mark players as ready ...
+              console.warn(`[${new Date()}] Invalid tried to set player ready.`);
+              continue;
+            }
+            this.setPlayerReady(payload.playerId);
             break;
         }
       }

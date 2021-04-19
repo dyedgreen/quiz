@@ -1,9 +1,11 @@
 import { html } from "/preact.js";
 import s from "/style.js";
 
-function Avatar({name, score, color}) {
+function Avatar({name, score, color, ready}) {
+  console.log(name, ready);
   return html`
     <div style=${styles.player}>
+      ${ready && html`<h2 style=${styles.ready}>READY</h2>`}
       <h1 style=${s(styles.letter, { background: `#${color}` })}>${name[0].toUpperCase()}</h1>
       <h2 style=${styles.name}><b>${score}</b> ${name}</h2>
     </div>
@@ -61,5 +63,16 @@ const styles = {
     overflow: "hidden",
     textOverflow: "ellipsis",
     textAlign: "center",
+  },
+  ready: {
+    height: 24,
+    position: "absolute",
+    padding: "0 4px",
+    fontWeight: 700,
+    lineHeight: "24px",
+    borderRadius: 8,
+    background: "#34D399",
+    color: "#fff",
+    transform: "rotate(-5deg) translate(-8px, -5px)",
   },
 };

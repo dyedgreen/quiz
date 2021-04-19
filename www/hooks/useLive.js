@@ -48,6 +48,12 @@ export default function useLive(gameId) {
     setName(name);
   };
 
+  const setPlayerReady = () => {
+    if (!connected)
+      return;
+    ws.send(JSON.stringify({ type: "set-player-ready", playerId }));
+  };
+
   return {
     connected,
     error,
@@ -55,9 +61,11 @@ export default function useLive(gameId) {
     player: {
       id: playerId,
       name,
+      ready: players.find(p => p.id === playerId && p.ready) != null,
     },
     actions: {
       setPlayerName,
+      setPlayerReady,
     },
   };
 }
