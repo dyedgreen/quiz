@@ -1,10 +1,11 @@
 import { html } from "/preact.js";
+import s from "/style.js";
 
-function Avatar({name, score}) {
+function Avatar({name, score, color}) {
   return html`
     <div style=${styles.player}>
-      <h1 style=${styles.letter}>${name[0].toUpperCase()}</h1>
-      <h2>${name}</h2>
+      <h1 style=${s(styles.letter, { background: `#${color}` })}>${name[0].toUpperCase()}</h1>
+      <h2 style=${styles.name}><b>${score}</b> ${name}</h2>
     </div>
   `;
 }
@@ -15,6 +16,7 @@ export default function PlayerList({players}) {
 
   return html`
     <div style=${styles.container}>
+      <h1 style=${styles.title}>Scores</h1>
       ${sorted.map(player => html`<${Avatar} ...${player} />`)}
     </div>
   `;
@@ -23,18 +25,23 @@ export default function PlayerList({players}) {
 const styles = {
   container: {
     display: "flex",
-    height: 100,
+    alignItems: "center",
     background: "#f8f8f8",
     borderRadius: 12,
-    margin: 8,
+    padding: "12px 0",
+    marginBottom: 12,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 700,
+    margin: "0 12px",
+    color: "#ccc",
   },
   player: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    width: 100,
-    height: 80,
-    marginTop: 10,
+    margin: "0 12px",
   },
   letter: {
     width: 60,
@@ -46,7 +53,13 @@ const styles = {
     fontWeight: 900,
     fontSize: 40,
     lineHeight: 1.5,
-    // lineHeight: 70,
     color: "#fff"
+  },
+  name: {
+    whiteSpace: "nowrap",
+    width: "100%",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    textAlign: "center",
   },
 };

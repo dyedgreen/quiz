@@ -1,10 +1,22 @@
 import type { WebSocket } from "https://deno.land/std@0.93.0/ws/mod.ts";
 import { v4 } from "https://deno.land/std@0.93.0/uuid/mod.ts";
 
+type Color = "6D28D9" | "DB2777" | "059669" | "F59E0B" | "DC2626";
+const colors: Array<Color> = ["6D28D9", "DB2777", "059669", "F59E0B", "DC2626"];
+
 interface Player {
   id: string;
   name: string;
   score: number;
+  color: Color;
+}
+
+export interface Round {
+  id: string;
+  title: string;
+  description: string;
+  messageTypes: Array<string>,
+  onMessage: (ctx: Game, type: string, payload: any) => null | Record<string, number>;
 }
 
 const games: Map<string, Game> = new Map();
@@ -24,7 +36,9 @@ export class Game {
     if (this.players.has(id)) {
       this.players.get(id)!.name = name;
     } else {
-      this.players.set(id, { id, name, score: 0 });
+      const color = colors[this.players.size % colors.length];
+      this.players.set(id, { id, name, score: 0, color });
+      console.log(`[${new Date()}] Registered player ${id}`);
     }
 
     for (const conn of this.conns) {
@@ -44,6 +58,7 @@ export class Game {
     // sync initial state
     this.syncPlayerList(socket);
     // handle incoming events
+    this.conns.add(socket);
     try {
       for await (const message of socket) {
         if (typeof message !== "string")
@@ -65,7 +80,6 @@ export class Game {
   static start(): Game {
     let game = new Game();
     games.set(game.id, game);
-    console.log(games);
     return game;
   }
 

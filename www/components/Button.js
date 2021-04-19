@@ -12,14 +12,14 @@ export default function Button({title, onClick, disabled, style}) {
 const styles = {
   button: {
     height: 40,
-    background: "rgb(37, 99, 235)",
+    background: "#2563EB",
     borderRadius: 8,
     padding: "0 12px",
     fontWeight: 800,
     color: "#fff",
   },
   disabled: {
-    opacity: 0.5,
+    background: "#BFDBFE",
     cursor: "default",
   },
 };

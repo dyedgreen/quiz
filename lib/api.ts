@@ -15,6 +15,11 @@ const methods: Record<string, (req: ServerRequest, args: any) => Promise<void>> 
     if (game != null) {
       let socket = await acceptWebSocket({...req, bufReader: req.r, bufWriter: req.w});
       game.connect(socket);
+    } else {
+      req.respond({
+        status: 404,
+        body: JSON.stringify({ error: "Game not found." }),
+      });
     }
   },
 };
