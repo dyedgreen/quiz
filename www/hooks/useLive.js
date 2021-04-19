@@ -12,6 +12,7 @@ export default function useLive(gameId) {
 
   const [players, setPlayers] = useState([]);
   const [name, setName] = useState(null);
+  const [round, setRound] = useState({id: null, title: null, description: null, data: null, endData: null});
 
   useEffect(() => {
     const ws = new WebSocket(url(gameId));
@@ -34,6 +35,15 @@ export default function useLive(gameId) {
                 setName(name);
             })
             break;
+          case "round-data":
+            setRound({
+              id: payload.roundId,
+              title: payload.title,
+              description: payload.description,
+              data: payload.data,
+              endData: payload.endData,
+            });
+            break;
         }
       } catch (err) {
         console.error("Invalid payload:", err);
@@ -54,6 +64,12 @@ export default function useLive(gameId) {
     ws.send(JSON.stringify({ type: "set-player-ready", playerId }));
   };
 
+  const sendMessage = (type, data) => {
+    if (!connected)
+      return;
+    ws.send(JSON.stringify({ type, playerId, data }));
+  }
+
   return {
     connected,
     error,
@@ -63,9 +79,11 @@ export default function useLive(gameId) {
       name,
       ready: players.find(p => p.id === playerId && p.ready) != null,
     },
+    round,
     actions: {
       setPlayerName,
       setPlayerReady,
+      sendMessage,
     },
   };
 }

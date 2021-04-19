@@ -3,6 +3,8 @@ import Button from "./Button.js";
 import TextInput from "./TextInput.js";
 import PlayerList from "./PlayerList.js";
 
+import Donation from "./Donation.js";
+
 import useLive from "/hooks/useLive.js";
 
 function ChooseName({onChooseName}) {
@@ -32,11 +34,39 @@ export default function Game({id}) {
     return html`<${NotFound} />`;
   } if (game.player.name == null) {
     return html`<${ChooseName} onChooseName=${game.actions.setPlayerName} />`;
+  } if (game.round.id != null) {
+    let ui = null;
+    switch (game.round.id) {
+      case "donation":
+        ui = html`<${Donation} game=${game} />`;
+        break;
+    }
+    return html`
+      <div style=${styles.container}>
+        <${PlayerList} playerId=${game.player.id} players=${game.players} />
+        <div style=${styles.prompt}>
+          <h1 style=${styles.promptTitle}>${game.round.title}</h1>
+          <p>${game.round.description}</p>
+        </div>
+        ${ui}
+      </div>
+    `;
   } else {
     return html`
       <div style=${styles.container}>
-        <${PlayerList} players=${game.players} />
-        <${Button} title="Ready!" onClick=${game.actions.setPlayerReady} style=${styles.singleButton} disabled=${game.player.ready} />
+        <${PlayerList} playerId=${game.player.id} players=${game.players} />
+        <h1 style=${styles.title}>
+          ${game.players.length < 4 ?
+            "Waiting for people to join" :
+            "Waiting for people to get ready"
+          }
+        </h1>
+        <${Button}
+          title="Ready!"
+          onClick=${game.actions.setPlayerReady}
+          style=${styles.singleButton}
+          disabled=${game.player.ready || game.players.length < 4}
+        />
       </div>
     `;
   }
@@ -47,8 +77,8 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    width: "90%",
-    height: "90%",
+    // width: "90%",
+    // height: "90%",
     background: "#fff",
     borderRadius: 12,
     padding: 24,
@@ -67,10 +97,25 @@ const styles = {
     fontWeight: 800,
     marginBottom: 12,
   },
+  promptTitle: {
+    fontSize: 24,
+    fontWeight: 800,
+  },
+  prompt: {
+    display: "flex",
+    flexDirection: "column",
+    width: 500,
+    alignItems: "left",
+    textAlign: "left",
+    background: "#F3F4F6",
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+  },
   input: {
     marginBottom: 12,
   },
   singleButton: {
     marginTop: 32,
-  }
+  },
 };

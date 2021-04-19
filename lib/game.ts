@@ -1,6 +1,8 @@
 import type { WebSocket } from "https://deno.land/std@0.93.0/ws/mod.ts";
 import { v4 } from "https://deno.land/std@0.93.0/uuid/mod.ts";
 
+import roundDonation from "./rounds/donation.ts";
+
 type Color = "6D28D9" | "DB2777" | "059669" | "F59E0B" | "DC2626";
 const colors: Array<Color> = ["6D28D9", "DB2777", "059669", "F59E0B", "DC2626"];
 
@@ -17,9 +19,11 @@ export interface Round {
   title: string;
   description: string;
   messageTypes: Array<string>,
-  onMessage: (ctx: Game, type: string, payload: any) => null | Record<string, number>;
+  onMessage: (ctx: Game, type: string, playerId: string, data: any) => null | { scores: Record<string, number>; data: any; };
+  getState: (ctx: Game) => any;
 }
 
+const rounds: Array<() => Round> = [roundDonation];
 const games: Map<string, Game> = new Map();
 
 export class Game {
@@ -28,12 +32,15 @@ export class Game {
   players: Map<string, Player>;
 
   activeRound: null | Round;
+  roundEndedData: null | any;
+  roundIdx: number;
 
   constructor() {
     this.id = v4.generate();
     this.conns = new Set();
     this.players = new Map();
     this.activeRound = null;
+    this.roundIdx = 0;
   }
 
   addPlayer(id: string, name: string) {
@@ -59,6 +66,26 @@ export class Game {
     for (const conn of this.conns) {
       this.syncPlayerList(conn);
     }
+    if ([...this.players.values()].every(({ready}) => ready) && this.players.size >= 4) {
+      // everyone is ready! If there are enough players start the game
+      // (minimum is 4 players!)
+      this.clearPlayersReady();
+      this.setNextRound();
+    }
+  }
+
+  setPlayerDone(id: string) {
+    // similar to set player ready, but does not advance round if everyone is ready
+    // (this is done by returning a set of scores!)
+    if (this.players.has(id)) {
+      let player = this.players.get(id)!;
+      this.players.set(id, {...player, ready: true});
+    } else {
+      console.warn(`[${new Date()}] Invalid player ID in setPlayerDoneForRound`);
+    }
+    for (const conn of this.conns) {
+      this.syncPlayerList(conn);
+    }
   }
 
   clearPlayersReady() {
@@ -77,10 +104,64 @@ export class Game {
     }));
   }
 
+  handleRoundMessage(type: string, playerId: string, data: any) {
+    if (this.activeRound == null) {
+      console.warn(`[${new Date()}] Invalid message of type ${type}`);
+      return;
+    } else if (this.activeRound.messageTypes.includes(type)) {
+      let results = this.activeRound.onMessage(this, type, playerId, data);
+      if (results != null) {
+        // Update score and go to next round.
+        for (const [id, player] of this.players) {
+          let score = player.score + (results.scores[id] ?? 0);
+          this.players.set(id, {...player, score});
+        }
+        this.clearPlayersReady(); // also syncs the player list (!)
+        this.roundEndedData = results.data;
+      }
+      // Send new round state to everyone
+      for (const conn of this.conns) {
+        this.syncRound(conn);
+      }
+    }
+  }
+
+  setNextRound() {
+    if (this.roundIdx < rounds.length) {
+      // go to next round
+      this.activeRound = rounds[this.roundIdx++]();
+    } else {
+      // go to done
+      this.activeRound = {
+        id: "done",
+        title: "That's it!", description: "Thank you for playing.",
+        messageTypes: [],
+        onMessage: (_, __, ___) => { return null; },
+        getState: (_) => {},
+      };
+      this.roundEndedData = null;
+    }
+    for (const conn of this.conns) {
+      this.syncRound(conn);
+    }
+  }
+
+  syncRound(conn: WebSocket) {
+    conn.send(JSON.stringify({
+      type: "round-data",
+      roundId: this.activeRound?.id,
+      title: this.activeRound?.title,
+      description: this.activeRound?.description,
+      data: this.activeRound?.getState(this),
+      endData: this.roundEndedData,
+    }));
+  }
+
   async connect(socket: WebSocket) {
     console.log(`[${new Date()}] New WebSocket client connected.`);
     // sync initial state
     this.syncPlayerList(socket);
+    this.syncRound(socket);
     // handle incoming events
     this.conns.add(socket);
     try {
@@ -93,13 +174,16 @@ export class Game {
             this.addPlayer(payload.playerId, payload.name);
             break;
           case "set-player-ready":
-            if (this.activeRound != null) {
+            if (this.activeRound != null && this.roundEndedData == null) {
               // This is only allowed IF we are not in a round. Otherwise, the round
               // can mark players as ready ...
               console.warn(`[${new Date()}] Invalid tried to set player ready.`);
               continue;
             }
             this.setPlayerReady(payload.playerId);
+            break;
+          default:
+            this.handleRoundMessage(payload.type, payload.playerId, payload.data);
             break;
         }
       }
