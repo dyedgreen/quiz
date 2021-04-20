@@ -27,6 +27,14 @@ export interface Round {
 const rounds: Array<() => Round> = [roundDonation, roundTwoThirds];
 const games: Map<string, Game> = new Map();
 
+function genId(): string {
+  let id;
+  do {
+    id = v4.generate().split("-")[1];
+  } while (games.has(id));
+  return id;
+}
+
 export class Game {
   id: string;
   conns: Set<WebSocket>;
@@ -37,7 +45,7 @@ export class Game {
   roundIdx: number;
 
   constructor() {
-    this.id = v4.generate();
+    this.id = genId();
     this.conns = new Set();
     this.players = new Map();
     this.activeRound = null;

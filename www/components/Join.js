@@ -15,7 +15,7 @@ export default function Join({onGameId}) {
     <div style=${styles.card}>
       <h1 style=${styles.title}>Join a Game</h1>
       <${TextInput} placeholder="Game ID" value=${idInput} onTextChange=${setIdInput} style=${styles.input} />
-      <${Button} title="Join" onClick=${() => onGameId(idInput)} disabled=${!validate(idInput)} />
+      <${Button} title="Join" onClick=${() => onGameId(idInput)} disabled=${idInput.length !== 4} />
       <h2 style=${styles.divider}>OR</h2>
       <${Button} title="New Game" onClick=${() => startGame(onGameId)} />
     </div>
