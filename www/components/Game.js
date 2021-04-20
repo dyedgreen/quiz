@@ -5,6 +5,7 @@ import PlayerList from "./PlayerList.js";
 
 import Donation from "./Donation.js";
 import GuessTwoThirds from "./GuessTwoThirds.js";
+import PublicGood from "./PublicGood.js";
 
 import useLive from "/hooks/useLive.js";
 
@@ -43,6 +44,9 @@ export default function Game({id}) {
         break;
       case "guess_two_thirds":
         ui = html`<${GuessTwoThirds} game=${game} />`;
+        break;
+      case "public_good":
+        ui = html`<${PublicGood} game=${game} />`;
         break;
     }
     return html`
