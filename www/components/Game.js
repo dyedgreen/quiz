@@ -4,6 +4,7 @@ import TextInput from "./TextInput.js";
 import PlayerList from "./PlayerList.js";
 
 import Donation from "./Donation.js";
+import GuessTwoThirds from "./GuessTwoThirds.js";
 
 import useLive from "/hooks/useLive.js";
 
@@ -39,6 +40,9 @@ export default function Game({id}) {
     switch (game.round.id) {
       case "donation":
         ui = html`<${Donation} game=${game} />`;
+        break;
+      case "guess_two_thirds":
+        ui = html`<${GuessTwoThirds} game=${game} />`;
         break;
     }
     return html`

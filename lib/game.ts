@@ -2,6 +2,7 @@ import type { WebSocket } from "https://deno.land/std@0.93.0/ws/mod.ts";
 import { v4 } from "https://deno.land/std@0.93.0/uuid/mod.ts";
 
 import roundDonation from "./rounds/donation.ts";
+import roundTwoThirds from "./rounds/guess_two_thirds.ts";
 
 type Color = "6D28D9" | "DB2777" | "059669" | "F59E0B" | "DC2626";
 const colors: Array<Color> = ["6D28D9", "DB2777", "059669", "F59E0B", "DC2626"];
@@ -23,7 +24,7 @@ export interface Round {
   getState: (ctx: Game) => any;
 }
 
-const rounds: Array<() => Round> = [roundDonation];
+const rounds: Array<() => Round> = [roundDonation, roundTwoThirds];
 const games: Map<string, Game> = new Map();
 
 export class Game {
@@ -105,10 +106,7 @@ export class Game {
   }
 
   handleRoundMessage(type: string, playerId: string, data: any) {
-    if (this.activeRound == null) {
-      console.warn(`[${new Date()}] Invalid message of type ${type}`);
-      return;
-    } else if (this.activeRound.messageTypes.includes(type)) {
+    if (this.activeRound != null && this.activeRound.messageTypes.includes(type) && this.players.has(playerId)) {
       let results = this.activeRound.onMessage(this, type, playerId, data);
       if (results != null) {
         // Update score and go to next round.
@@ -123,6 +121,8 @@ export class Game {
       for (const conn of this.conns) {
         this.syncRound(conn);
       }
+    } else {
+      console.warn(`[${new Date()}] Invalid message of type ${type} for player ${playerId}`);
     }
   }
 
@@ -139,8 +139,8 @@ export class Game {
         onMessage: (_, __, ___) => { return null; },
         getState: (_) => {},
       };
-      this.roundEndedData = null;
     }
+    this.roundEndedData = null;
     for (const conn of this.conns) {
       this.syncRound(conn);
     }
