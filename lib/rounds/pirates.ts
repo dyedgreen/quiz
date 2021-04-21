@@ -37,7 +37,7 @@ export default function pirates(ctx: Game) {
     id: "pirates",
     title: "Pirates",
     description: `A captain is chosen at random. The captain then distributes the pot of ${totalPoints} points
-                  to all players. Players can vote if they like the split. If more than half
+                  to all players. Players can vote if they like the split. If half or more
                   agree, the split is executed. Otherwise, the captain is thrown
                   over board and a new captain is chosen at random.`,
     messageTypes: ["submit-split", "vote-on-split"],

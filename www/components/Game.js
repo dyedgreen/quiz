@@ -24,8 +24,9 @@ function ChooseName({onChooseName}) {
 function NotFound() {
   return html`
     <div style=${styles.nameSelect}>
-      <h1 style=${styles.title}>Game not Found</h1>
-      <${Button} title="Back To Home" onClick=${() => document.location.search = ""} />
+      <h1 style=${styles.title}>Failed to Connect</h1>
+      <${Button} title="Back To Home" onClick=${() => document.location.search = ""} style=${styles.input} />
+      <${Button} title="Refresh" onClick=${() => window.location.reload(true)} />
     </div>
   `;
 }
@@ -89,6 +90,7 @@ export default function Game({id}) {
 const styles = {
   container: {
     display: "flex",
+    maxWidth: "100%",
     flexDirection: "column",
     alignItems: "center",
     background: "#fff",
@@ -117,6 +119,7 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     width: 500,
+    maxWidth: "100%",
     alignItems: "left",
     textAlign: "left",
     background: "#F3F4F6",

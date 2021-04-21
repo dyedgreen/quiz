@@ -202,6 +202,7 @@ export class Game {
     }
     // handle disconnect
     this.conns.delete(socket);
+    console.log(`[${new Date()}] WebSocket client disconnected.`);
   }
 
   static start(): Game {
