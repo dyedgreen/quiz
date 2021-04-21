@@ -4,6 +4,7 @@ import { v4 } from "https://deno.land/std@0.93.0/uuid/mod.ts";
 import roundDonation from "./rounds/donation.ts";
 import roundTwoThirds from "./rounds/guess_two_thirds.ts";
 import roundPublicGood from "./rounds/public_good.ts";
+import roundPirates from "./rounds/pirates.ts";
 
 type Color = "6D28D9" | "DB2777" | "059669" | "F59E0B" | "DC2626";
 const colors: Array<Color> = ["6D28D9", "DB2777", "059669", "F59E0B", "DC2626"];
@@ -25,7 +26,6 @@ export interface Round {
   getState: (ctx: Game) => any;
 }
 
-const rounds: Array<() => Round> = [roundDonation, roundTwoThirds, roundPublicGood];
 const games: Map<string, Game> = new Map();
 
 function genId(): string {
@@ -43,14 +43,14 @@ export class Game {
 
   activeRound: null | Round;
   roundEndedData: null | any;
-  roundIdx: number;
+  roundsLeft: Array<() => Round>;
 
   constructor() {
     this.id = genId();
     this.conns = new Set();
     this.players = new Map();
     this.activeRound = null;
-    this.roundIdx = 0;
+    this.roundsLeft = [roundDonation, roundTwoThirds, roundPublicGood, () => roundPirates(this)];
   }
 
   addPlayer(id: string, name: string) {
@@ -136,9 +136,10 @@ export class Game {
   }
 
   setNextRound() {
-    if (this.roundIdx < rounds.length) {
+    const nextRound = this.roundsLeft.shift();
+    if (nextRound) {
       // go to next round
-      this.activeRound = rounds[this.roundIdx++]();
+      this.activeRound = nextRound();
     } else {
       // go to done
       this.activeRound = {

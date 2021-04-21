@@ -35,9 +35,11 @@ export default function public_good() {
 
         const scores: Record<string, number> = {};
         for (let i = 0; i < inOrder.length; i ++) {
-          if (i < inOrder.length - 1) // only get from pot if your not the lowest contributor
-            scores[inOrder[i].playerId] = Math.floor(2 * total / (inOrder.length - 1));
-          scores[inOrder[i].playerId] += 10 - inOrder[i].contribution;
+          scores[inOrder[i].playerId] = 10 - inOrder[i].contribution;
+          if (i < inOrder.length - 1) {
+            // only get from pot if your not the lowest contributor
+            scores[inOrder[i].playerId] += Math.floor(2 * total / (inOrder.length - 1));
+          }
         }
 
         let data = { contributions: inOrder, total };

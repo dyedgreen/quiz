@@ -38,7 +38,9 @@ function End({ game }) {
     <p style=${styles.text}>The total pot was ${total}</p>
     ${table.map(({player, contribution}, idx) => html`
       <p style=${styles.text}>
-        <${PlayerChip} ...${player} /> contributed ${contribution}${idx < table.length - 1 && `, receiving ${each}`}
+        <${PlayerChip} ...${player} /> contributed ${contribution}, receiving ${
+          idx < table.length - 1 ? `${10 - contribution} + ${each}` : 10 - contribution
+        }
       </p>
     `)}
     <${Button} title="Next" onClick=${game.actions.setPlayerReady} disabled=${game.player.ready} />

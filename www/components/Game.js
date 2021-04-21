@@ -6,6 +6,7 @@ import PlayerList from "./PlayerList.js";
 import Donation from "./Donation.js";
 import GuessTwoThirds from "./GuessTwoThirds.js";
 import PublicGood from "./PublicGood.js";
+import Pirates from "./Pirates.js";
 
 import useLive from "/hooks/useLive.js";
 
@@ -48,6 +49,9 @@ export default function Game({id}) {
       case "public_good":
         ui = html`<${PublicGood} game=${game} />`;
         break;
+      case "pirates":
+        ui = html`<${Pirates} game=${game} />`;
+        break;
     }
     return html`
       <div style=${styles.container}>
@@ -57,6 +61,7 @@ export default function Game({id}) {
           <p>${game.round.description}</p>
         </div>
         ${ui}
+        <p style=${styles.gameId}><b>Game ID:</b> ${id}</p>
       </div>
     `;
   } else {
@@ -75,6 +80,7 @@ export default function Game({id}) {
           style=${styles.singleButton}
           disabled=${game.player.ready || game.players.length < 4}
         />
+        <p style=${styles.gameId}><b>Game ID:</b> ${id}</p>
       </div>
     `;
   }
@@ -85,8 +91,6 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    // width: "90%",
-    // height: "90%",
     background: "#fff",
     borderRadius: 12,
     padding: 24,
@@ -125,5 +129,10 @@ const styles = {
   },
   singleButton: {
     marginTop: 32,
+  },
+  gameId: {
+    marginTop: 24,
+    fontSize: "14px",
+    color: "#E5E7EB",
   },
 };
