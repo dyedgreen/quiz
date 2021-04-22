@@ -7,9 +7,13 @@ console.log("Serving from http://localhost:8000/");
 
 for await (const req of server) {
   console.log(`[${new Date()}] ${req.method} ${req.url}`);
-  if (/^\/api\/.+/.test(req.url)) {
-    serveApi(req);
-  } else {
-    serveFiles(req, "www").then(resp => req.respond(resp));
+  try {
+    if (/^\/api\/.+/.test(req.url)) {
+      serveApi(req);
+    } else {
+      serveFiles(req, "www").then(resp => req.respond(resp));
+    }
+  } catch (err) {
+    console.error(`[${new Date()}] Request error: ${err}`);
   }
 }
