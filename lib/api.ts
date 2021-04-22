@@ -14,7 +14,9 @@ const methods: Record<string, (req: ServerRequest, args: any) => Promise<void>> 
     let game = Game.get(id);
     if (game != null) {
       let socket = await acceptWebSocket({...req, bufReader: req.r, bufWriter: req.w});
-      game.connect(socket);
+      game.connect(socket).catch(err => {
+        console.error(`[${new Date()}] Socket connect error: ${err}`);
+      });
     } else {
       req.respond({
         status: 404,

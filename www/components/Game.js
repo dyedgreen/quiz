@@ -34,7 +34,7 @@ function NotFound() {
 export default function Game({id}) {
   const game = useLive(id);
 
-  if (game.error) {
+  if (game.error || !game.connected) {
     return html`<${NotFound} />`;
   } if (game.player.name == null) {
     return html`<${ChooseName} onChooseName=${game.actions.setPlayerName} />`;
@@ -52,6 +52,9 @@ export default function Game({id}) {
         break;
       case "pirates":
         ui = html`<${Pirates} game=${game} />`;
+        break;
+      case "done":
+        ui = html`<${Button} title="Back To Home" onClick=${() => document.location.search = ""} style=${styles.input} />`;
         break;
     }
     return html`
