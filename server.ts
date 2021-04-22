@@ -3,7 +3,7 @@ import serveFiles from "./lib/files.ts";
 import { serveApi } from "./lib/api.ts";
 
 const server = serve({ port: 8080 });
-console.log("Serving from http://localhost:8000/");
+console.log("Server Started ...");
 
 for await (const req of server) {
   console.log(`[${new Date()}] ${req.method} ${req.url}`);
