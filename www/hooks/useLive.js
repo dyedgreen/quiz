@@ -53,7 +53,7 @@ export default function useLive(gameId) {
 
   useEffect(() => {
     const id = setInterval(() => {
-      setConnected(ws != null && ws.readyState === 1);
+      setConnected(ws != null && ws.readyState <= 1);
     }, 1000);
     return () => clearInterval(id);
   }, [ws]);

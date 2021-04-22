@@ -50,7 +50,13 @@ export class Game {
     this.conns = new Set();
     this.players = new Map();
     this.activeRound = null;
-    this.roundsLeft = [roundDonation, roundTwoThirds, roundPublicGood, () => roundPirates(this)];
+    this.roundsLeft = [
+      roundDonation,
+      roundTwoThirds,
+      roundPublicGood,
+      () => roundPirates(this),
+    ];
+    this.roundsLeft.sort((_, __) => 0.5 - Math.random());
   }
 
   addPlayer(id: string, name: string) {
