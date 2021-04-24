@@ -12,7 +12,9 @@ async function run() {
       if (/^\/api\/.+/.test(req.url)) {
         serveApi(req);
       } else {
-        serveFiles(req, "www").then(resp => req.respond(resp));
+        serveFiles(req, "www")
+          .then(resp => req.respond(resp))
+          .catch(err => console.error(`[${new Date()}] www error: ${err}`));
       }
     } catch (err) {
       console.error(`[${new Date()}] Request error: ${err}`);
