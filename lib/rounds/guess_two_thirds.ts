@@ -14,9 +14,15 @@ export default function guess_two_thirds() {
   return {
     id: "guess_two_thirds",
     title: "Guess ²/₃ of the Average",
-    description: "Each player can make a guess between 1 and 20. Whoever guesses closest to the average guess will receive their guess as points.",
+    description:
+      "Each player can make a guess between 1 and 20. Whoever guesses closest to the average guess will receive their guess as points.",
     messageTypes: ["set-guess"],
-    onMessage: (ctx: Game, type: string, playerId: string, data: any): null | { scores: Record<string, number>; data: any } => {
+    onMessage: (
+      ctx: Game,
+      type: string,
+      playerId: string,
+      data: any,
+    ): null | { scores: Record<string, number>; data: any } => {
       const guess = Math.floor(+data);
       if (guess < 1 || guess > 20) {
         console.warn(`[${new Date()}] Invalid guess of ${guess}`);
@@ -28,9 +34,14 @@ export default function guess_two_thirds() {
 
       if (guesses.size === ctx.players.size) {
         // closest guess will win!
-        let inOrder = [...guesses].map(([playerId, guess]) => { return {playerId, guess}; });
-        let average = inOrder.reduce((acc, {guess}) => acc + guess, 0) / inOrder.length;
-        inOrder.sort(({guess: a}, {guess: b}) => Math.abs(a - average) - Math.abs(b - average));
+        let inOrder = [...guesses].map(([playerId, guess]) => {
+          return { playerId, guess };
+        });
+        let average = inOrder.reduce((acc, { guess }) => acc + guess, 0) /
+          inOrder.length;
+        inOrder.sort(({ guess: a }, { guess: b }) =>
+          Math.abs(a - average) - Math.abs(b - average)
+        );
 
         let scores = { [inOrder[0].playerId]: inOrder[0].guess };
         let data = { guesses: inOrder, average };

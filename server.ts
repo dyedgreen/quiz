@@ -13,8 +13,8 @@ async function run() {
         serveApi(req);
       } else {
         serveFiles(req, "www")
-          .then(resp => req.respond(resp))
-          .catch(err => console.error(`[${new Date()}] www error: ${err}`));
+          .then((resp) => req.respond(resp))
+          .catch((err) => console.error(`[${new Date()}] www error: ${err}`));
       }
     } catch (err) {
       console.error(`[${new Date()}] Request error: ${err}`);
@@ -23,7 +23,7 @@ async function run() {
 }
 
 function retry() {
-  run().catch(err => {
+  run().catch((err) => {
     console.error(`[${new Date()}] Overall error: ${err}`);
     retry();
   });

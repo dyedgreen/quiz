@@ -8,8 +8,7 @@ function Play({ game }) {
   const [guess, setGuess] = useState(game.round.data.minGuess);
   const didGuess = game.player.ready;
 
-  const submit = () =>
-    game.actions.sendMessage("set-guess", guess);
+  const submit = () => game.actions.sendMessage("set-guess", guess);
 
   return html`
     <${NumberInput}
@@ -25,9 +24,9 @@ function Play({ game }) {
 }
 
 function End({ game }) {
-  const table = game.round.endData.guesses.map(({playerId, guess}) => {
+  const table = game.round.endData.guesses.map(({ playerId, guess }) => {
     return {
-      player: game.players.find(p => p.id === playerId),
+      player: game.players.find((p) => p.id === playerId),
       guess,
     };
   });
@@ -35,11 +34,15 @@ function End({ game }) {
 
   return html`
     <p style=${styles.text}>The average guess was ${average}</p>
-    ${table.map(({player, guess}) => html`
+    ${
+    table.map(({ player, guess }) =>
+      html`
       <p style=${styles.text}>
         <${PlayerChip} ...${player} /> guessed ${guess}
       </p>
-    `)}
+    `
+    )
+  }
     <${Button} title="Next" onClick=${game.actions.setPlayerReady} disabled=${game.player.ready} />
   `;
 }

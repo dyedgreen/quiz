@@ -1,25 +1,32 @@
 import { html } from "/preact.js";
 import s from "/style.js";
 
-function Avatar({playerId, player: {id, name, score, color, ready}}) {
+function Avatar({ playerId, player: { id, name, score, color, ready } }) {
   return html`
     <div style=${styles.player}>
       ${ready && html`<h2 style=${s(styles.badge, styles.ready)}>READY</h2>`}
-      ${id === playerId && html`<h2 style=${s(styles.badge, styles.you)}>YOU</h2>`}
-      <h1 style=${s(styles.letter, { background: `#${color}` })}>${name[0].toUpperCase()}</h1>
+      ${id === playerId &&
+    html`<h2 style=${s(styles.badge, styles.you)}>YOU</h2>`}
+      <h1 style=${s(styles.letter, { background: `#${color}` })}>${
+    name[0].toUpperCase()
+  }</h1>
       <h2 style=${styles.name}><b>${score}</b> ${name}</h2>
     </div>
   `;
 }
 
-export default function PlayerList({playerId, players}) {
+export default function PlayerList({ playerId, players }) {
   let sorted = [...players];
-  sorted.sort(({score: a}, {score: b}) => b - a);
+  sorted.sort(({ score: a }, { score: b }) => b - a);
 
   return html`
     <div style=${styles.container}>
       <h1 style=${styles.title}>Scores</h1>
-      ${sorted.map(player => html`<${Avatar} playerId=${playerId} player=${player} />`)}
+      ${
+    sorted.map((player) =>
+      html`<${Avatar} playerId=${playerId} player=${player} />`
+    )
+  }
     </div>
   `;
 }
@@ -60,7 +67,7 @@ const styles = {
     fontWeight: 900,
     fontSize: 40,
     lineHeight: 1.5,
-    color: "#fff"
+    color: "#fff",
   },
   name: {
     whiteSpace: "nowrap",

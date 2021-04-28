@@ -1,7 +1,10 @@
-import { useState, useEffect } from "/preact.js";
+import { useEffect, useState } from "/preact.js";
 import usePlayer from "/hooks/usePlayer.js";
 
-const url = gameId => `${document.location.protocol.includes("https") ? "wss://" : "ws://"}${document.location.host}/api/live/${gameId}`;
+const url = (gameId) =>
+  `${
+    document.location.protocol.includes("https") ? "wss://" : "ws://"
+  }${document.location.host}/api/live/${gameId}`;
 
 export default function useLive(gameId) {
   const playerId = usePlayer();
@@ -12,7 +15,13 @@ export default function useLive(gameId) {
 
   const [players, setPlayers] = useState([]);
   const [name, setName] = useState(null);
-  const [round, setRound] = useState({id: null, title: null, description: null, data: null, endData: null});
+  const [round, setRound] = useState({
+    id: null,
+    title: null,
+    description: null,
+    data: null,
+    endData: null,
+  });
 
   useEffect(() => {
     const ws = new WebSocket(url(gameId));
@@ -22,18 +31,20 @@ export default function useLive(gameId) {
     ws.onclose = () => setConnected(false);
     ws.onerror = () => setError(true);
 
-    ws.onmessage = event => {
-      if (typeof event.data !== "string")
+    ws.onmessage = (event) => {
+      if (typeof event.data !== "string") {
         return console.warn("Unexpected message:", event);
+      }
       try {
         const payload = JSON.parse(event.data);
         switch (payload.type) {
           case "player-list":
             setPlayers(payload.players);
-            payload.players.forEach(({id, name}) => {
-              if (id === playerId)
+            payload.players.forEach(({ id, name }) => {
+              if (id === playerId) {
                 setName(name);
-            })
+              }
+            });
             break;
           case "round-data":
             setRound({
@@ -58,24 +69,27 @@ export default function useLive(gameId) {
     return () => clearInterval(id);
   }, [ws]);
 
-  const setPlayerName = name => {
-    if (!connected)
+  const setPlayerName = (name) => {
+    if (!connected) {
       return;
+    }
     ws.send(JSON.stringify({ type: "add-player", playerId, name }));
     setName(name);
   };
 
   const setPlayerReady = () => {
-    if (!connected)
+    if (!connected) {
       return;
+    }
     ws.send(JSON.stringify({ type: "set-player-ready", playerId }));
   };
 
   const sendMessage = (type, data) => {
-    if (!connected)
+    if (!connected) {
       return;
+    }
     ws.send(JSON.stringify({ type, playerId, data }));
-  }
+  };
 
   return {
     connected,
@@ -84,7 +98,7 @@ export default function useLive(gameId) {
     player: {
       id: playerId,
       name,
-      ready: players.find(p => p.id === playerId && p.ready) != null,
+      ready: players.find((p) => p.id === playerId && p.ready) != null,
     },
     round,
     actions: {

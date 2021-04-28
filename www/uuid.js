@@ -8,20 +8,28 @@ function rng() {
   if (!getRandomValues) {
     // getRandomValues needs to be invoked in a context where "this" is a Crypto implementation. Also,
     // find the complete implementation of crypto (msCrypto) on IE11.
-    getRandomValues = typeof crypto !== 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto) || typeof msCrypto !== 'undefined' && typeof msCrypto.getRandomValues === 'function' && msCrypto.getRandomValues.bind(msCrypto);
+    getRandomValues =
+      typeof crypto !== "undefined" && crypto.getRandomValues &&
+        crypto.getRandomValues.bind(crypto) ||
+      typeof msCrypto !== "undefined" &&
+        typeof msCrypto.getRandomValues === "function" &&
+        msCrypto.getRandomValues.bind(msCrypto);
 
     if (!getRandomValues) {
-      throw new Error('crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported');
+      throw new Error(
+        "crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported",
+      );
     }
   }
 
   return getRandomValues(rnds8);
 }
 
-var REGEX = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i;
+var REGEX =
+  /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i;
 
 function validate(uuid) {
-  return typeof uuid === 'string' && REGEX.test(uuid);
+  return typeof uuid === "string" && REGEX.test(uuid);
 }
 
 /**
@@ -36,17 +44,27 @@ for (var i = 0; i < 256; ++i) {
 }
 
 function stringify(arr) {
-  var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+  var offset = arguments.length > 1 && arguments[1] !== undefined
+    ? arguments[1]
+    : 0;
   // Note: Be careful editing this code!  It's been tuned for performance
   // and works in ways you may not expect. See https://github.com/uuidjs/uuid/pull/434
-  var uuid = (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + '-' + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + '-' + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + '-' + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + '-' + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase(); // Consistency check for valid UUID.  If this throws, it's likely due to one
+  var uuid =
+    (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] +
+      byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + "-" +
+      byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + "-" +
+      byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + "-" +
+      byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + "-" +
+      byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] +
+      byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] +
+      byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase(); // Consistency check for valid UUID.  If this throws, it's likely due to one
   // of the following:
   // - One or more input array values don't map to a hex octet (leading to
   // "undefined" in the uuid)
   // - Invalid input values for the RFC `version` or `variant` fields
 
   if (!validate(uuid)) {
-    throw TypeError('Stringified UUID is invalid');
+    throw TypeError("Stringified UUID is invalid");
   }
 
   return uuid;
@@ -59,7 +77,6 @@ function stringify(arr) {
 var _nodeId;
 
 var _clockseq; // Previous uuid creation time
-
 
 var _lastMSecs = 0;
 var _lastNSecs = 0; // See https://github.com/uuidjs/uuid for API details
@@ -78,7 +95,14 @@ function v1(options, buf, offset) {
 
     if (node == null) {
       // Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
-      node = _nodeId = [seedBytes[0] | 0x01, seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]];
+      node = _nodeId = [
+        seedBytes[0] | 0x01,
+        seedBytes[1],
+        seedBytes[2],
+        seedBytes[3],
+        seedBytes[4],
+        seedBytes[5],
+      ];
     }
 
     if (clockseq == null) {
@@ -89,7 +113,6 @@ function v1(options, buf, offset) {
   // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
   // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
   // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
-
 
   var msecs = options.msecs !== undefined ? options.msecs : Date.now(); // Per 4.2.1.2, use count of uuid's generated during the current clock
   // cycle to simulate higher resolution clock
@@ -103,11 +126,9 @@ function v1(options, buf, offset) {
   } // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
   // time interval
 
-
   if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
     nsecs = 0;
   } // Per 4.2.1.2 Throw error if too many uuids are requested
-
 
   if (nsecs >= 10000) {
     throw new Error("uuid.v1(): Can't create more than 10M uuids/sec");
@@ -146,7 +167,7 @@ function v1(options, buf, offset) {
 
 function parse(uuid) {
   if (!validate(uuid)) {
-    throw TypeError('Invalid UUID');
+    throw TypeError("Invalid UUID");
   }
 
   var v;
@@ -188,24 +209,25 @@ function stringToBytes(str) {
   return bytes;
 }
 
-var DNS = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
-var URL = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
-function v35 (name, version, hashfunc) {
+var DNS = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
+var URL = "6ba7b811-9dad-11d1-80b4-00c04fd430c8";
+function v35(name, version, hashfunc) {
   function generateUUID(value, namespace, buf, offset) {
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       value = stringToBytes(value);
     }
 
-    if (typeof namespace === 'string') {
+    if (typeof namespace === "string") {
       namespace = parse(namespace);
     }
 
     if (namespace.length !== 16) {
-      throw TypeError('Namespace must be array-like (16 iterable integer values, 0-255)');
+      throw TypeError(
+        "Namespace must be array-like (16 iterable integer values, 0-255)",
+      );
     } // Compute hash of namespace and value, Per 4.3
     // Future: Use spread syntax when supported on all platforms, e.g. `bytes =
     // hashfunc([...namespace, ... value])`
-
 
     var bytes = new Uint8Array(16 + value.length);
     bytes.set(namespace);
@@ -227,11 +249,9 @@ function v35 (name, version, hashfunc) {
     return stringify(bytes);
   } // Function#name is not settable on some platforms (#270)
 
-
   try {
     generateUUID.name = name; // eslint-disable-next-line no-empty
   } catch (err) {} // For CommonJS default export support
-
 
   generateUUID.DNS = DNS;
   generateUUID.URL = URL;
@@ -259,7 +279,7 @@ function v35 (name, version, hashfunc) {
  * See http://pajhome.org.uk/crypt/md5 for more info.
  */
 function md5(bytes) {
-  if (typeof bytes === 'string') {
+  if (typeof bytes === "string") {
     var msg = unescape(encodeURIComponent(bytes)); // UTF8 escape
 
     bytes = new Uint8Array(msg.length);
@@ -269,21 +289,25 @@ function md5(bytes) {
     }
   }
 
-  return md5ToHexEncodedArray(wordsToMd5(bytesToWords(bytes), bytes.length * 8));
+  return md5ToHexEncodedArray(
+    wordsToMd5(bytesToWords(bytes), bytes.length * 8),
+  );
 }
 /*
  * Convert an array of little-endian words to an array of bytes
  */
 
-
 function md5ToHexEncodedArray(input) {
   var output = [];
   var length32 = input.length * 32;
-  var hexTab = '0123456789abcdef';
+  var hexTab = "0123456789abcdef";
 
   for (var i = 0; i < length32; i += 8) {
     var x = input[i >> 5] >>> i % 32 & 0xff;
-    var hex = parseInt(hexTab.charAt(x >>> 4 & 0x0f) + hexTab.charAt(x & 0x0f), 16);
+    var hex = parseInt(
+      hexTab.charAt(x >>> 4 & 0x0f) + hexTab.charAt(x & 0x0f),
+      16,
+    );
     output.push(hex);
   }
 
@@ -293,14 +317,12 @@ function md5ToHexEncodedArray(input) {
  * Calculate output length with padding and bit length
  */
 
-
 function getOutputLength(inputLength8) {
   return (inputLength8 + 64 >>> 9 << 4) + 14 + 1;
 }
 /*
  * Calculate the MD5 of an array of little-endian words, and a bit length.
  */
-
 
 function wordsToMd5(x, len) {
   /* append padding */
@@ -393,7 +415,6 @@ function wordsToMd5(x, len) {
  * Characters >255 have their high-byte silently ignored.
  */
 
-
 function bytesToWords(input) {
   if (input.length === 0) {
     return [];
@@ -413,7 +434,6 @@ function bytesToWords(input) {
  * to work around bugs in some JS interpreters.
  */
 
-
 function safeAdd(x, y) {
   var lsw = (x & 0xffff) + (y & 0xffff);
   var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
@@ -423,14 +443,12 @@ function safeAdd(x, y) {
  * Bitwise rotate a 32-bit number to the left.
  */
 
-
 function bitRotateLeft(num, cnt) {
   return num << cnt | num >>> 32 - cnt;
 }
 /*
  * These functions implement the four basic operations the algorithm uses.
  */
-
 
 function md5cmn(q, a, b, x, s, t) {
   return safeAdd(bitRotateLeft(safeAdd(safeAdd(a, q), safeAdd(x, t)), s), b);
@@ -452,7 +470,7 @@ function md5ii(a, b, c, d, x, s, t) {
   return md5cmn(c ^ (b | ~d), a, b, x, s, t);
 }
 
-var v3 = v35('v3', 0x30, md5);
+var v3 = v35("v3", 0x30, md5);
 
 function v4(options, buf, offset) {
   options = options || {};
@@ -500,7 +518,7 @@ function sha1(bytes) {
   var K = [0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6];
   var H = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0];
 
-  if (typeof bytes === 'string') {
+  if (typeof bytes === "string") {
     var msg = unescape(encodeURIComponent(bytes)); // UTF8 escape
 
     bytes = [];
@@ -522,7 +540,8 @@ function sha1(bytes) {
     var arr = new Uint32Array(16);
 
     for (var j = 0; j < 16; ++j) {
-      arr[j] = bytes[_i * 64 + j * 4] << 24 | bytes[_i * 64 + j * 4 + 1] << 16 | bytes[_i * 64 + j * 4 + 2] << 8 | bytes[_i * 64 + j * 4 + 3];
+      arr[j] = bytes[_i * 64 + j * 4] << 24 | bytes[_i * 64 + j * 4 + 1] << 16 |
+        bytes[_i * 64 + j * 4 + 2] << 8 | bytes[_i * 64 + j * 4 + 3];
     }
 
     M[_i] = arr;
@@ -566,16 +585,37 @@ function sha1(bytes) {
     H[4] = H[4] + e >>> 0;
   }
 
-  return [H[0] >> 24 & 0xff, H[0] >> 16 & 0xff, H[0] >> 8 & 0xff, H[0] & 0xff, H[1] >> 24 & 0xff, H[1] >> 16 & 0xff, H[1] >> 8 & 0xff, H[1] & 0xff, H[2] >> 24 & 0xff, H[2] >> 16 & 0xff, H[2] >> 8 & 0xff, H[2] & 0xff, H[3] >> 24 & 0xff, H[3] >> 16 & 0xff, H[3] >> 8 & 0xff, H[3] & 0xff, H[4] >> 24 & 0xff, H[4] >> 16 & 0xff, H[4] >> 8 & 0xff, H[4] & 0xff];
+  return [
+    H[0] >> 24 & 0xff,
+    H[0] >> 16 & 0xff,
+    H[0] >> 8 & 0xff,
+    H[0] & 0xff,
+    H[1] >> 24 & 0xff,
+    H[1] >> 16 & 0xff,
+    H[1] >> 8 & 0xff,
+    H[1] & 0xff,
+    H[2] >> 24 & 0xff,
+    H[2] >> 16 & 0xff,
+    H[2] >> 8 & 0xff,
+    H[2] & 0xff,
+    H[3] >> 24 & 0xff,
+    H[3] >> 16 & 0xff,
+    H[3] >> 8 & 0xff,
+    H[3] & 0xff,
+    H[4] >> 24 & 0xff,
+    H[4] >> 16 & 0xff,
+    H[4] >> 8 & 0xff,
+    H[4] & 0xff,
+  ];
 }
 
-var v5 = v35('v5', 0x50, sha1);
+var v5 = v35("v5", 0x50, sha1);
 
-var nil = '00000000-0000-0000-0000-000000000000';
+var nil = "00000000-0000-0000-0000-000000000000";
 
 function version(uuid) {
   if (!validate(uuid)) {
-    throw TypeError('Invalid UUID');
+    throw TypeError("Invalid UUID");
   }
 
   return parseInt(uuid.substr(14, 1), 16);

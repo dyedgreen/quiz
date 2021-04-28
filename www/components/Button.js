@@ -1,9 +1,11 @@
 import { html } from "/preact.js";
 import s from "/style.js";
 
-export default function Button({title, onClick, disabled, style}) {
+export default function Button({ title, onClick, disabled, style }) {
   return html`
-    <button style=${s(styles.button, disabled && styles.disabled, style)} onClick=${() => !disabled && onClick()}>
+    <button style=${
+    s(styles.button, disabled && styles.disabled, style)
+  } onClick=${() => !disabled && onClick()}>
       ${title}
     </button>
   `;

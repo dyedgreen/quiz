@@ -5,17 +5,18 @@ import TextInput from "./TextInput.js";
 
 function startGame(onGameId) {
   fetch(`${window.location.protocol}//${window.location.host}/api/start`)
-    .then(res => res.json())
-    .then(({gameId}) => onGameId(gameId));
+    .then((res) => res.json())
+    .then(({ gameId }) => onGameId(gameId));
 }
 
-export default function Join({onGameId}) {
+export default function Join({ onGameId }) {
   const [idInput, setIdInput] = useState("");
   return html`
     <div style=${styles.card}>
       <h1 style=${styles.title}>Join a Game</h1>
       <${TextInput} placeholder="Game ID" value=${idInput} onTextChange=${setIdInput} style=${styles.input} />
-      <${Button} title="Join" onClick=${() => onGameId(idInput)} disabled=${idInput.length !== 4} />
+      <${Button} title="Join" onClick=${() =>
+    onGameId(idInput)} disabled=${idInput.length !== 4} />
       <h2 style=${styles.divider}>OR</h2>
       <${Button} title="New Game" onClick=${() => startGame(onGameId)} />
     </div>

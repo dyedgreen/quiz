@@ -5,6 +5,7 @@ import roundDonation from "./rounds/donation.ts";
 import roundTwoThirds from "./rounds/guess_two_thirds.ts";
 import roundPublicGood from "./rounds/public_good.ts";
 import roundPirates from "./rounds/pirates.ts";
+import roundSecondMostPopular from "./rounds/second_most_popular.ts";
 
 type Color = "6D28D9" | "DB2777" | "059669" | "F59E0B" | "DC2626";
 const colors: Array<Color> = ["6D28D9", "DB2777", "059669", "F59E0B", "DC2626"];
@@ -21,8 +22,13 @@ export interface Round {
   id: string;
   title: string;
   description: string;
-  messageTypes: Array<string>,
-  onMessage: (ctx: Game, type: string, playerId: string, data: any) => null | { scores: Record<string, number>; data: any; };
+  messageTypes: Array<string>;
+  onMessage: (
+    ctx: Game,
+    type: string,
+    playerId: string,
+    data: any,
+  ) => null | { scores: Record<string, number>; data: any };
   getState: (ctx: Game) => any;
 }
 
@@ -55,6 +61,7 @@ export class Game {
       roundTwoThirds,
       roundPublicGood,
       () => roundPirates(this),
+      roundSecondMostPopular,
     ];
     this.roundsLeft.sort((_, __) => 0.5 - Math.random());
   }
@@ -75,14 +82,17 @@ export class Game {
   setPlayerReady(id: string) {
     if (this.players.has(id)) {
       let player = this.players.get(id)!;
-      this.players.set(id, {...player, ready: true});
+      this.players.set(id, { ...player, ready: true });
     } else {
       console.warn(`[${new Date()}] Invalid player ID in setPlayerReady`);
     }
     for (const conn of this.conns) {
       this.syncPlayerList(conn);
     }
-    if ([...this.players.values()].every(({ready}) => ready) && this.players.size >= 4) {
+    if (
+      [...this.players.values()].every(({ ready }) => ready) &&
+      this.players.size >= 4
+    ) {
       // everyone is ready! If there are enough players start the game
       // (minimum is 4 players!)
       this.clearPlayersReady();
@@ -95,9 +105,11 @@ export class Game {
     // (this is done by returning a set of scores!)
     if (this.players.has(id)) {
       let player = this.players.get(id)!;
-      this.players.set(id, {...player, ready: true});
+      this.players.set(id, { ...player, ready: true });
     } else {
-      console.warn(`[${new Date()}] Invalid player ID in setPlayerDoneForRound`);
+      console.warn(
+        `[${new Date()}] Invalid player ID in setPlayerDoneForRound`,
+      );
     }
     for (const conn of this.conns) {
       this.syncPlayerList(conn);
@@ -106,7 +118,7 @@ export class Game {
 
   clearPlayersReady() {
     for (const [key, val] of this.players) {
-      this.players.set(key, {...val, ready: false});
+      this.players.set(key, { ...val, ready: false });
     }
     for (const conn of this.conns) {
       this.syncPlayerList(conn);
@@ -121,13 +133,16 @@ export class Game {
   }
 
   handleRoundMessage(type: string, playerId: string, data: any) {
-    if (this.activeRound != null && this.activeRound.messageTypes.includes(type) && this.players.has(playerId)) {
+    if (
+      this.activeRound != null &&
+      this.activeRound.messageTypes.includes(type) && this.players.has(playerId)
+    ) {
       let results = this.activeRound.onMessage(this, type, playerId, data);
       if (results != null) {
         // Update score and go to next round.
         for (const [id, player] of this.players) {
           let score = player.score + (results.scores[id] ?? 0);
-          this.players.set(id, {...player, score});
+          this.players.set(id, { ...player, score });
         }
         this.clearPlayersReady(); // also syncs the player list (!)
         this.roundEndedData = results.data;
@@ -137,7 +152,9 @@ export class Game {
         this.syncRound(conn);
       }
     } else {
-      console.warn(`[${new Date()}] Invalid message of type ${type} for player ${playerId}`);
+      console.warn(
+        `[${new Date()}] Invalid message of type ${type} for player ${playerId}`,
+      );
     }
   }
 
@@ -150,9 +167,12 @@ export class Game {
       // go to done
       this.activeRound = {
         id: "done",
-        title: "That's it!", description: "Thank you for playing.",
+        title: "That's it!",
+        description: "Thank you for playing.",
         messageTypes: [],
-        onMessage: (_, __, ___) => { return null; },
+        onMessage: (_, __, ___) => {
+          return null;
+        },
         getState: (_) => {},
       };
     }
@@ -182,8 +202,9 @@ export class Game {
     this.conns.add(socket);
     try {
       for await (const message of socket) {
-        if (typeof message !== "string")
+        if (typeof message !== "string") {
           continue;
+        }
         const payload = JSON.parse(message);
         switch (payload.type) {
           case "add-player":
@@ -193,13 +214,19 @@ export class Game {
             if (this.activeRound != null && this.roundEndedData == null) {
               // This is only allowed IF we are not in a round. Otherwise, the round
               // can mark players as ready ...
-              console.warn(`[${new Date()}] Invalid tried to set player ready.`);
+              console.warn(
+                `[${new Date()}] Invalid tried to set player ready.`,
+              );
               continue;
             }
             this.setPlayerReady(payload.playerId);
             break;
           default:
-            this.handleRoundMessage(payload.type, payload.playerId, payload.data);
+            this.handleRoundMessage(
+              payload.type,
+              payload.playerId,
+              payload.data,
+            );
             break;
         }
       }

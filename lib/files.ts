@@ -41,7 +41,9 @@ export default async function serve(req: ServerRequest, dir: string) {
     return { status: 400, body: "Invalid file path.\n" };
   }
 
-  const { isFile } = await Deno.stat(fsPath).catch(() => {return { isFile: false }});
+  const { isFile } = await Deno.stat(fsPath).catch(() => {
+    return { isFile: false };
+  });
   if (!isFile) {
     return { status: 404, body: "File not found.\n" };
   }

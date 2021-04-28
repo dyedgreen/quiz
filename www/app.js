@@ -1,4 +1,4 @@
-import { html, render, useState, useEffect } from "/preact.js";
+import { html, render, useEffect, useState } from "/preact.js";
 import Join from "/components/Join.js";
 import Game from "/components/Game.js";
 
@@ -6,7 +6,7 @@ function getQueryParams() {
   const search = document.location.search.replace(/^\?/, "");
   const values = search
     .split("&")
-    .map(pair => pair.split("="))
+    .map((pair) => pair.split("="))
     .reduce((acc, [key, val]) => {
       acc[key] = val;
       return acc;
@@ -21,8 +21,9 @@ function getPresetGameId() {
 function App() {
   const [gameId, setGameId] = useState(getPresetGameId());
   useEffect(() => {
-    if (gameId != null && getPresetGameId() != gameId)
+    if (gameId != null && getPresetGameId() != gameId) {
       document.location.search = "?game=" + gameId;
+    }
   }, [gameId]);
 
   if (gameId == null) {

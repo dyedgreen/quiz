@@ -7,16 +7,18 @@ import Donation from "./Donation.js";
 import GuessTwoThirds from "./GuessTwoThirds.js";
 import PublicGood from "./PublicGood.js";
 import Pirates from "./Pirates.js";
+import SecondMostPopular from "./SecondMostPopular.js";
 
 import useLive from "/hooks/useLive.js";
 
-function ChooseName({onChooseName}) {
+function ChooseName({ onChooseName }) {
   const [name, setName] = useState("");
   return html`
     <div style=${styles.nameSelect}>
       <h1 style=${styles.title}>Select Your Name</h1>
       <${TextInput} value=${name} onTextChange=${setName} placeholder="Type your name ..." style=${styles.input} />
-      <${Button} title="Choose Name" onClick=${() => onChooseName(name)} disabled=${!name.length} />
+      <${Button} title="Choose Name" onClick=${() =>
+    onChooseName(name)} disabled=${!name.length} />
     </div>
   `;
 }
@@ -25,20 +27,24 @@ function NotFound() {
   return html`
     <div style=${styles.nameSelect}>
       <h1 style=${styles.title}>Failed to Connect</h1>
-      <${Button} title="Back To Home" onClick=${() => document.location.search = ""} style=${styles.input} />
-      <${Button} title="Refresh" onClick=${() => window.location.reload(true)} />
+      <${Button} title="Back To Home" onClick=${() =>
+    document.location.search = ""} style=${styles.input} />
+      <${Button} title="Refresh" onClick=${() =>
+    window.location.reload(true)} />
     </div>
   `;
 }
 
-export default function Game({id}) {
+export default function Game({ id }) {
   const game = useLive(id);
 
   if (game.error || !game.connected) {
     return html`<${NotFound} />`;
-  } if (game.player.name == null) {
+  }
+  if (game.player.name == null) {
     return html`<${ChooseName} onChooseName=${game.actions.setPlayerName} />`;
-  } if (game.round.id != null) {
+  }
+  if (game.round.id != null) {
     let ui = null;
     switch (game.round.id) {
       case "donation":
@@ -53,8 +59,12 @@ export default function Game({id}) {
       case "pirates":
         ui = html`<${Pirates} game=${game} />`;
         break;
+      case "second_most_popular":
+        ui = html`<${SecondMostPopular} game=${game} />`;
+        break;
       case "done":
-        ui = html`<${Button} title="Back To Home" onClick=${() => document.location.search = ""} style=${styles.input} />`;
+        ui = html`<${Button} title="Back To Home" onClick=${() =>
+          document.location.search = ""} style=${styles.input} />`;
         break;
     }
     return html`
@@ -73,10 +83,11 @@ export default function Game({id}) {
       <div style=${styles.container}>
         <${PlayerList} playerId=${game.player.id} players=${game.players} />
         <h1 style=${styles.title}>
-          ${game.players.length < 4 ?
-            "Waiting for people to join" :
-            "Waiting for people to get ready"
-          }
+          ${
+      game.players.length < 4
+        ? "Waiting for people to join"
+        : "Waiting for people to get ready"
+    }
         </h1>
         <${Button}
           title="Ready!"

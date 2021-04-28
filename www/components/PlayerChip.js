@@ -1,10 +1,12 @@
 import { html } from "/preact.js";
 import s from "/style.js";
 
-export default function PlayerChip({name, color}) {
+export default function PlayerChip({ name, color }) {
   return html`
     <span style=${styles.container}>
-      <span style=${s(styles.letter, { backgroundColor: `#${color}` })}>${name[0].toUpperCase()}</span>
+      <span style=${s(styles.letter, { backgroundColor: `#${color}` })}>${
+    name[0].toUpperCase()
+  }</span>
       <p style=${styles.text}>${name}</p>
     </span>
   `;

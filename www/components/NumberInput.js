@@ -2,7 +2,7 @@ import { html } from "/preact.js";
 import s from "/style.js";
 import Button from "./Button.js";
 
-export default function({value, onChange, min, max, style, disabled}) {
+export default function ({ value, onChange, min, max, style, disabled }) {
   const downDisabled = disabled || value <= min;
   const upDisabled = disabled || value >= max;
   return html`

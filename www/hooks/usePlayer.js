@@ -1,4 +1,4 @@
-import { useState, useEffect } from "/preact.js";
+import { useEffect, useState } from "/preact.js";
 import { v4 as uuidv4 } from "/uuid.js";
 
 export default function usePlayer() {

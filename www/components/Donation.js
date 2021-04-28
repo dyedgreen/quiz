@@ -8,13 +8,16 @@ function Play({ game }) {
   const [to, setTo] = useState(0);
   const [amount, setAmount] = useState(0);
 
-  const otherPlayers = game.players.filter(({id}) => id !== game.player.id);
-  const otherPlayerNames = otherPlayers.map(({name}) => name);
+  const otherPlayers = game.players.filter(({ id }) => id !== game.player.id);
+  const otherPlayerNames = otherPlayers.map(({ name }) => name);
 
   const didDonate = game.player.ready;
 
   const donate = () =>
-    game.actions.sendMessage("set-donation", { amount, to: otherPlayers[to].id });
+    game.actions.sendMessage("set-donation", {
+      amount,
+      to: otherPlayers[to].id,
+    });
 
   return html`
     <${SelectInput}
@@ -37,20 +40,26 @@ function Play({ game }) {
 }
 
 function End({ game }) {
-  const table = game.round.endData.map(({from, to, amount}) => {
+  const table = game.round.endData.map(({ from, to, amount }) => {
     return {
-      from: game.players.find(p => p.id === from),
-      to: game.players.find(p => p.id === to),
+      from: game.players.find((p) => p.id === from),
+      to: game.players.find((p) => p.id === to),
       amount,
     };
   });
 
   return html`
-    ${table.map(({from, to, amount}) => html`
+    ${
+    table.map(({ from, to, amount }) =>
+      html`
       <p style=${styles.text}>
-        <${PlayerChip} ...${from} /> donated ${amount} point${amount !== 1 ? "s" : ""} to <${PlayerChip} ...${to} />
+        <${PlayerChip} ...${from} /> donated ${amount} point${
+        amount !== 1 ? "s" : ""
+      } to <${PlayerChip} ...${to} />
       </p>
-    `)}
+    `
+    )
+  }
     <${Button} title="Next" onClick=${game.actions.setPlayerReady} disabled=${game.player.ready} />
   `;
 }

@@ -15,7 +15,7 @@ interface ClientState {
   split: Record<string, number> | null;
   lastVotes: Record<string, boolean> | null;
   totalPoints: number;
-};
+}
 
 export default function pirates(ctx: Game) {
   const playersAlive = new Set(ctx.players.keys());
@@ -36,12 +36,18 @@ export default function pirates(ctx: Game) {
   return {
     id: "pirates",
     title: "Pirates",
-    description: `A captain is chosen at random. The captain then distributes the pot of ${totalPoints} points
+    description:
+      `A captain is chosen at random. The captain then distributes the pot of ${totalPoints} points
                   to all players. Players can vote if they like the split. If half or more
                   agree, the split is executed. Otherwise, the captain is thrown
                   over board and a new captain is chosen at random.`,
     messageTypes: ["submit-split", "vote-on-split"],
-    onMessage: (ctx: Game, type: string, playerId: string, data: any): null | { scores: Record<string, number>; data: any } => {
+    onMessage: (
+      ctx: Game,
+      type: string,
+      playerId: string,
+      data: any,
+    ): null | { scores: Record<string, number>; data: any } => {
       if (split == null && type === "submit-split" && playerId === captain) {
         // update the split proposal
         let newSplit: Record<string, number> = {};
@@ -51,7 +57,10 @@ export default function pirates(ctx: Game) {
         split = newSplit;
         // mark captain as done
         ctx.setPlayerDone(playerId);
-      } else if (split != null && type === "vote-on-split" && playerId !== captain && playersAlive.has(playerId)) {
+      } else if (
+        split != null && type === "vote-on-split" && playerId !== captain &&
+        playersAlive.has(playerId)
+      ) {
         // add a vote
         votes.set(playerId, !!data);
 
@@ -61,8 +70,9 @@ export default function pirates(ctx: Game) {
           lastVotes = {};
           for (const [id, vote] of votes) {
             lastVotes[id] = vote;
-            if (vote)
-              totalAccept ++;
+            if (vote) {
+              totalAccept++;
+            }
           }
 
           if (totalAccept >= (playersAlive.size - 1) / 2) {
@@ -81,7 +91,10 @@ export default function pirates(ctx: Game) {
               const [lastPlayer] = [...playersAlive];
               captain = lastPlayer;
               split = { [lastPlayer]: totalPoints };
-              return { scores: { [lastPlayer]: totalPoints }, data: { totalAccept: 1 } };
+              return {
+                scores: { [lastPlayer]: totalPoints },
+                data: { totalAccept: 1 },
+              };
             } else {
               captain = chooseCaptain();
               votes = new Map();
@@ -89,10 +102,10 @@ export default function pirates(ctx: Game) {
               ctx.clearPlayersReady();
             }
           }
-       } else {
+        } else {
           // otherwise mark player as ready
           ctx.setPlayerDone(playerId);
-       }
+        }
       } else {
         console.warn(`[${new Date()}] Invalid pirate message.`);
       }
