@@ -26,7 +26,7 @@ function ChooseName({ onChooseName }) {
 function NotFound() {
   return html`
     <div style=${styles.nameSelect}>
-      <h1 style=${styles.title}>Failed to Connect</h1>
+      <h1 style=${styles.title}>Connection Lost</h1>
       <${Button} title="Back To Home" onClick=${() =>
     document.location.search = ""} style=${styles.input} />
       <${Button} title="Refresh" onClick=${() =>
