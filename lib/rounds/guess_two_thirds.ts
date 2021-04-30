@@ -38,7 +38,7 @@ export default function guess_two_thirds() {
           return { playerId, guess };
         });
         let average = inOrder.reduce((acc, { guess }) => acc + guess, 0) /
-          inOrder.length;
+          inOrder.length * 2 / 3;
         inOrder.sort(({ guess: a }, { guess: b }) =>
           Math.abs(a - average) - Math.abs(b - average)
         );
